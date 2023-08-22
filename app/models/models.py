@@ -8,6 +8,11 @@ class CalculateData(BaseModel):
     num2: int
 
 
+class Feedbacks(BaseModel):
+    name: str
+    message: str
+
+
 class Users(BaseModel):
     id: int
     name: str
