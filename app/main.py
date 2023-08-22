@@ -34,12 +34,24 @@ async def download_requirements():
 
 @app.get('/products/', response_model=list[Products])
 async def products_get(limit: int = 3, offset: int = 0):
-    pass
+    return list(db[PRODUCTS].values())[offset:limit+offset]
 
 
-@app.post('products/', response_model=Products)
+@app.get('/products/{id}/', response_model=Products | dict)
+async def products_get_id(id: int):
+    return db[PRODUCTS].get(id, {"BadRequest": "Product doesn't exist!"})
+
+
+@app.post('/products/', response_model=Products)
 async def products_post(product: Products):
-    pass
+    new_id: int = len(db[PRODUCTS]) + 1
+    posted_product: Products = Products(
+        id=new_id,
+        name=product.name,
+        category=product.category,
+        price=product.price)
+    db[PRODUCTS][new_id] = posted_product
+    return posted_product
 
 
 @app.get('/users/', response_model=list[UsersAgeGrade])
