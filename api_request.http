@@ -15,30 +15,8 @@
 @feedback = http://127.0.0.1:8000/feedback/
 @users = http://127.0.0.1:8000/users/
 
-
-###
-POST {{calculate_path}}?num1=1&num2=2 HTTP/1.1
-
-###
-POST {{calculate_body}} HTTP/1.1
-Content-Type: application/json
-
-{
-    "num1": 5,
-    "num2": 10
-}
-
 ###
 GET {{download}} HTTP/1.1
-
-###
-POST {{feedback}} HTTP/1.1
-content-type: application/json
-
-{
-    "name": "Alan",
-    "message": "My feedback"
-}
 
 ###
 GET {{index}} HTTP/1.1
@@ -47,7 +25,7 @@ GET {{index}} HTTP/1.1
 GET {{users}} HTTP/1.1
 
 ###
-GET {{users}}?offset=2&limit=5 HTTP/1.1
+GET {{users}}?offset=1&limit=5 HTTP/1.1
 
 ###
 GET {{users}}1/ HTTP/1.1
@@ -57,7 +35,6 @@ POST {{users}} HTTP/1.1
 Content-Type: application/json
 
 {
-    "id": 4,
-    "name": "Ivan",
-    "age": 18
+    "name": "Ivana",
+    "age": 2
 }
