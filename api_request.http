@@ -11,11 +11,10 @@
 @index = http://127.0.0.1:8000/
 @calculate_body = http://127.0.0.1:8000/calculate_body/
 @calculate_path = http://127.0.0.1:8000/calculate_path/
+@download =  http://127.0.0.1:8000/download/
 @feedback = http://127.0.0.1:8000/feedback/
 @users = http://127.0.0.1:8000/users/
 
-###
-GET {{index}} HTTP/1.1
 
 ###
 POST {{calculate_path}}?num1=1&num2=2 HTTP/1.1
@@ -30,6 +29,9 @@ Content-Type: application/json
 }
 
 ###
+GET {{download}} HTTP/1.1
+
+###
 POST {{feedback}} HTTP/1.1
 content-type: application/json
 
@@ -37,6 +39,9 @@ content-type: application/json
     "name": "Alan",
     "message": "My feedback"
 }
+
+###
+GET {{index}} HTTP/1.1
 
 ###
 GET {{users}} HTTP/1.1

@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, status
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from core.core import check_age_grade
 from db_fake import db_fake
@@ -9,15 +9,6 @@ from models.models import Feedbacks, CalculateData, Users, UsersAgeGrade
 app: FastAPI = FastAPI(title='My first FastAPI app')
 db: list[Users] = db_fake
 db_id_hash: dict[int, int] = {}
-
-
-@app.get('/')
-async def index():
-    with open(file='index.html',
-              mode='r',
-              encoding='utf-8') as html_file:
-        html_content = html_file.read()
-    return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
 
 
 @app.post('/calculate_path/')
@@ -30,9 +21,27 @@ async def calculate_body(data: CalculateData):
     return {"result": data.num1 + data.num2}
 
 
+@app.get('/download/')
+async def download_requirements():
+    return FileResponse(
+        path='requirements.txt',
+        filename='Project_Requirements.txt',
+        status_code=status.HTTP_200_OK,
+        media_type='text/txt')
+
+
 @app.post('/feedback/')
 async def feedback_post(feedback: Feedbacks):
     return {"message": f"Feedback received. Thank you, {feedback.name}!"}
+
+
+@app.get('/')
+async def index():
+    with open(file='app/index.html',
+              mode='r',
+              encoding='utf-8') as html_file:
+        html_content = html_file.read()
+    return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
 
 
 @app.get('/users/', response_model=list[UsersAgeGrade])
