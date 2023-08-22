@@ -8,6 +8,7 @@ from models.models import CalculateData, Users, UsersAgeGrade
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
 db: list[Users] = db_fake
+db_id_hash: dict[int, int] = {}
 
 
 @app.get('/')
@@ -34,15 +35,26 @@ async def users_get():
     return db
 
 
-@app.post('/users/', response_model=UsersAgeGrade)
+@app.post('/users/', response_model=UsersAgeGrade|dict)
 async def users_post(user: Users):
+    if user.id in db_id_hash:
+        return {"InternalError": "This Id is already exists!"}
     posted_user: UsersAgeGrade = UsersAgeGrade(
         id=user.id,
         name=user.name,
         age=user.age,
         age_grade=check_age_grade(age=user.age))
     db.append(posted_user)
+    db_id_hash[user.id] = len(db)-1
     return posted_user
+
+
+@app.get('/users/{id}/', response_model=UsersAgeGrade | dict)
+async def users_get_id(id: int):
+    hashed_id: int = db_id_hash.get(id)
+    if hashed_id is not None:
+        return db[hashed_id]
+    return {"InternalError": "User doesn't exist!"}
 
 
 if __name__ == '__main__':
