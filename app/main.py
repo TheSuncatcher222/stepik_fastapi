@@ -1,4 +1,6 @@
-from fastapi import FastAPI, status
+from datetime import datetime
+
+from fastapi import FastAPI, Response, status, Cookie
 from fastapi.responses import FileResponse, HTMLResponse
 
 from core.core import (
@@ -13,13 +15,26 @@ app: FastAPI = FastAPI(title='My first FastAPI app')
 
 db: dict[str, dict[int, any]] = DB_FAKE_INIT
 
+
 @app.get('/')
-async def index():
+async def index(response: Response, last_visit = Cookie()):
     with open(file='app/index.html',
               mode='r',
               encoding='utf-8') as html_file:
         html_content = html_file.read()
     return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK)
+
+
+@app.post('/cookie/read/')
+async def index_cookie_read(last_visit = Cookie()):
+    return  {"last visit": last_visit}
+
+
+@app.post('/cookie/set/')
+async def index_cookie_set(response: Response):
+    now = datetime.now()
+    response.set_cookie(key="last_visit", value=now)
+    return  {"message": "куки установлены"}
 
 
 @app.get('/download/')
