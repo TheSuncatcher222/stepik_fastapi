@@ -3,13 +3,14 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+
 class ProductCategories(str, Enum):
     accessories = 'accessories'
     electronics = 'electronics'
 
 
 class Products(BaseModel):
-    id: int
+    id: int = None
     name: str
     category: ProductCategories
     price: float
