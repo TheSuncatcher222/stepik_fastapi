@@ -11,6 +11,7 @@
 @index = http://127.0.0.1:8000/
 @calculate_body = http://127.0.0.1:8000/calculate_body/
 @calculate_path = http://127.0.0.1:8000/calculate_path/
+@feedback = http://127.0.0.1:8000/feedback/
 @users = http://127.0.0.1:8000/users/
 
 ###
@@ -26,6 +27,15 @@ Content-Type: application/json
 {
     "num1": 5,
     "num2": 10
+}
+
+###
+POST {{feedback}} HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Alan",
+    "message": "My feedback"
 }
 
 ###

@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 
 from core.core import check_age_grade
 from db_fake import db_fake
-from models.models import CalculateData, Users, UsersAgeGrade
+from models.models import Feedbacks, CalculateData, Users, UsersAgeGrade
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
 db: list[Users] = db_fake
@@ -30,12 +30,17 @@ async def calculate_body(data: CalculateData):
     return {"result": data.num1 + data.num2}
 
 
+@app.post('/feedback/')
+async def feedback_post(feedback: Feedbacks):
+    return {"message": f"Feedback received. Thank you, {feedback.name}!"}
+
+
 @app.get('/users/', response_model=list[UsersAgeGrade])
 async def users_get(limit: int = 3, offset: int = 0):
     return db[offset:limit+offset]
 
 
-@app.post('/users/', response_model=UsersAgeGrade|dict)
+@app.post('/users/', response_model=UsersAgeGrade | dict)
 async def users_post(user: Users):
     if user.id in db_id_hash:
         return {"InternalError": "This Id is already exists!"}
