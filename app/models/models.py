@@ -13,3 +13,7 @@ class Users(BaseModel):
     name: str
     date_reg: datetime = datetime.utcnow()
     age: int
+
+
+class UsersAgeGrade(Users):
+    age_grade: str
