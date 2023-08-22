@@ -1,22 +1,25 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel
 
+class ProductCategories(str, Enum):
+    accessories = 'accessories'
+    electronics = 'electronics'
 
-class CalculateData(BaseModel):
-    num1: int
-    num2: int
 
-
-class Feedbacks(BaseModel):
+class Products(BaseModel):
+    id: int
     name: str
-    message: str
+    category: ProductCategories
+    price: float
 
 
 class Users(BaseModel):
-    id: int
+    id: int = None
     name: str
     date_reg: datetime = datetime.utcnow()
+    is_subscribed: bool = False
     age: int
 
 
