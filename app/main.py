@@ -3,9 +3,11 @@ from fastapi import FastAPI, status
 from fastapi.responses import HTMLResponse
 
 from core.core import check_age_grade
-from models.models import CalculateData, Users
+from db_fake import db_fake
+from models.models import CalculateData, Users, UsersAgeGrade
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
+db: list[Users] = db_fake
 
 
 @app.get('/')
@@ -27,16 +29,20 @@ async def calculate_body(data: CalculateData):
     return {"result": data.num1 + data.num2}
 
 
-@app.post('/users/')
-async def users_get(user: Users):
-    posted_user: Users = Users(id=user.id,
-                               name=user.name,
-                               age=user.age)
-    return {'id': posted_user.id,
-            'name': posted_user.name,
-            'age': posted_user.age,
-            'date_reg': posted_user.date_reg,
-            'status': check_age_grade(age=posted_user.age)}
+@app.get('/users/', response_model=list[UsersAgeGrade])
+async def users_get():
+    return db
+
+
+@app.post('/users/', response_model=UsersAgeGrade)
+async def users_post(user: Users):
+    posted_user: UsersAgeGrade = UsersAgeGrade(
+        id=user.id,
+        name=user.name,
+        age=user.age,
+        age_grade=check_age_grade(age=user.age))
+    db.append(posted_user)
+    return posted_user
 
 
 if __name__ == '__main__':
