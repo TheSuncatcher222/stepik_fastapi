@@ -1,4 +1,3 @@
-import uvicorn
 from fastapi import FastAPI, status
 from fastapi.responses import FileResponse, HTMLResponse
 
@@ -90,10 +89,9 @@ async def users_post(user: Users):
 
 @app.get('/users/{id}/', response_model=UsersAgeGrade | dict)
 async def users_get_id(id: int):
-    if id < 1:
-        return {"BadRequest": "User id should be a positive int!"}
     return db[USERS].get(id, {"BadRequest": "User doesn't exist!"})
 
 
 if __name__ == '__main__':
+    import uvicorn
     uvicorn.run('main:app', host='127.0.0.1', port=8000, reload=True)
