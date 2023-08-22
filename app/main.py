@@ -37,6 +37,23 @@ async def products_get(limit: int = 3, offset: int = 0):
     return list(db[PRODUCTS].values())[offset:limit+offset]
 
 
+@app.get('/products/search/', response_model=list[Products] | dict)
+async def products_get_search(
+        keyword: str,
+        category: str = None,
+        limit: int = 10):
+    if category and category not in ('accessories', 'electronics'):
+        return {"BadRequest": "Category doesn't exist!"}
+    response: list[Products] = list(
+        filter(lambda product: keyword.lower() in product.name.lower(),
+               db[PRODUCTS].values()))
+    if category:
+        response: list[Products] = list(
+            filter(lambda product: category.lower() == product.category,
+                   response))
+    return response[:limit]
+
+
 @app.get('/products/{id}/', response_model=Products | dict)
 async def products_get_id(id: int):
     return db[PRODUCTS].get(id, {"BadRequest": "Product doesn't exist!"})

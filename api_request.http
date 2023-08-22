@@ -29,12 +29,15 @@ GET {{products}}?offset=1&limit=5 HTTP/1.1
 GET {{products}}2/ HTTP/1.1
 
 ###
+GET {{products}}search/?keyword=ph&category=accessories HTTP/1.1
+
+###
 POST {{products}} HTTP/1.1
 Content-Type: application/json
 
 {
     "name": "iPhone",
-    "category": "electronics",
+    "category": "accessories",
     "price": 10.00
 }
 
