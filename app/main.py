@@ -6,12 +6,12 @@ from core.core import (
     check_age_grade)
 from db_fake import DB_FAKE_INIT
 from models.models import (
+    PRODUCT_CATEGORIES_LIST,
     Products, Users, UsersAgeGrade)
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
 
 db: dict[str, dict[int, any]] = DB_FAKE_INIT
-
 
 @app.get('/')
 async def index():
@@ -41,7 +41,7 @@ async def products_get_search(
         keyword: str,
         category: str = None,
         limit: int = 10):
-    if category and category not in ('accessories', 'electronics'):
+    if category and category not in PRODUCT_CATEGORIES_LIST:
         return {"BadRequest": "Category doesn't exist!"}
     response: list[Products] = list(
         filter(lambda product: keyword.lower() in product.name.lower(),

@@ -9,6 +9,9 @@ class ProductCategories(str, Enum):
     electronics = 'electronics'
 
 
+PRODUCT_CATEGORIES_LIST: list[str] = [c.value for c in ProductCategories]
+
+
 class Products(BaseModel):
     id: int = None
     name: str
