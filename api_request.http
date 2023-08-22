@@ -32,6 +32,9 @@ Content-Type: application/json
 GET {{users}} HTTP/1.1
 
 ###
+GET {{users}}?offset=2&limit=5 HTTP/1.1
+
+###
 GET {{users}}1/ HTTP/1.1
 
 ###
@@ -39,7 +42,7 @@ POST {{users}} HTTP/1.1
 Content-Type: application/json
 
 {
-    "id": 1,
+    "id": 4,
     "name": "Ivan",
     "age": 18
 }

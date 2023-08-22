@@ -31,8 +31,8 @@ async def calculate_body(data: CalculateData):
 
 
 @app.get('/users/', response_model=list[UsersAgeGrade])
-async def users_get():
-    return db
+async def users_get(limit: int = 3, offset: int = 0):
+    return db[offset:limit+offset]
 
 
 @app.post('/users/', response_model=UsersAgeGrade|dict)
