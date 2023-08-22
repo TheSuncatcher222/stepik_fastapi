@@ -29,11 +29,14 @@ Content-Type: application/json
 }
 
 ###
+GET {{users}} HTTP/1.1
+
+###
 POST {{users}} HTTP/1.1
 Content-Type: application/json
 
 {
     "id": 5,
-    "name": "10",
+    "name": "Ivan",
     "age": 18
 }
