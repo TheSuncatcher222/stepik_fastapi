@@ -6,7 +6,7 @@ PRODUCTS: str = 'products'
 USERS: str = 'users'
 
 
-def check_age_grade(age: int) -> str:
+def set_age_grade(age: int) -> str:
     """Return age grade:
         - minor for age under 18;
         - adult in other case."""
