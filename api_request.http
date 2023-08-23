@@ -62,6 +62,16 @@ POST {{users}} HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Ivana",
+    "username": "Ivana",
+    "password": "mypass",
     "age": 2
+}
+
+###
+POST {{users}}login/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "Ivana",
+    "password": "mypass"
 }
