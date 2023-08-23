@@ -112,21 +112,25 @@ async def users_get_id(id: int):
 
 
 @app.post('/users/login/', response_model=dict[str,str])
-async def users_login(login_data: UsersAuthModel, response = Response):
+async def users_login(login_data: UsersAuthModel, response = JSONResponse):
     current_user: UsersAuthModel | None = None
     for user in db[USERS].values():
+        print(login_data.username)
+        print(user.username)
         if login_data.username == user.username:
             current_user: UserModel = user
             break
+    print(current_user)
     if (current_user is None or
-            current_user.password != hash_password(login_data.password)):
+            current_user.password != login_data.password):
         return JSONResponse(
             content={"Bad Request": "Incorrect username or password!"},
             status_code=status.HTTP_400_BAD_REQUEST)
-    response.set_cookie(key='session_token')
-    return JSONResponse(
+    response = JSONResponse(
             content={"Confirm": "Welcome!"},
-            status_code=status.HTTP_200_BAD_REQUEST)
+            status_code=status.HTTP_200_OK)
+    response.set_cookie(key='session_token')
+    return response
 
 
 if __name__ == '__main__':
