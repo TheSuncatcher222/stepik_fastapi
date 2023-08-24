@@ -4,7 +4,7 @@ from fastapi import FastAPI, Response, status, Cookie
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 from auth.auth import hash_password
-from core.core import PRODUCTS, USERS
+from core.core import PRODUCTS, USERS, USERS_USERNAMES
 from db_fake import DB_FAKE_INIT
 from models.models import (
     PRODUCT_CATEGORIES_LIST,
@@ -94,6 +94,10 @@ async def users_get(limit: int = 3, offset: int = 0):
 
 @app.post('/users/', response_model=UserWithoutPasswordModel | dict)
 async def users_post(user: UserRegisterModel):
+    if user.username in db[USERS_USERNAMES]:
+        return JSONResponse(
+            content={"Bad Request": "User with that username exists!"},
+            status_code=status.HTTP_400_BAD_REQUEST) 
     new_id: int = len(db[USERS]) + 1
     posted_user = UserModel(
         id=new_id,
@@ -101,6 +105,7 @@ async def users_post(user: UserRegisterModel):
         password=user.password,
         age=user.age)
     db[USERS][new_id] = posted_user
+    db[USERS_USERNAMES].append(user.username)
     return posted_user
 
 
@@ -111,18 +116,16 @@ async def users_get_id(id: int):
         status_code=status.HTTP_404_NOT_FOUND))
 
 
-@app.post('/users/login/', response_model=dict[str,str])
-async def users_login(login_data: UsersAuthModel, response = JSONResponse):
+@app.post('/users/login/', response_model=dict[str, str])
+async def users_login(login_data: UsersAuthModel, response=JSONResponse):
     current_user: UsersAuthModel | None = None
     for user in db[USERS].values():
-        print(login_data.username)
-        print(user.username)
         if login_data.username == user.username:
             current_user: UserModel = user
             break
-    print(current_user)
     if (current_user is None or
-            current_user.password != login_data.password):
+            current_user.password != hash_password(
+                password=login_data.password)):
         return JSONResponse(
             content={"Bad Request": "Incorrect username or password!"},
             status_code=status.HTTP_400_BAD_REQUEST)

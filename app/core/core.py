@@ -4,6 +4,7 @@ MINOR: str = 'minor'
 
 PRODUCTS: str = 'products'
 USERS: str = 'users'
+USERS_USERNAMES: str = 'users_usernames'
 
 
 def set_age_grade(age: int) -> str:

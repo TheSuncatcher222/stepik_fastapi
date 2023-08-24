@@ -3,7 +3,9 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from auth.auth import hash_password
 from core.core import set_age_grade
+
 
 class ProductCategories(str, Enum):
     accessories = 'accessories'
@@ -40,6 +42,7 @@ class UserModel(UserRegisterModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.age_grade = set_age_grade(self.age)
+        self.password: bytes = hash_password(self.password)
 
 
 class UserWithoutPasswordModel(BaseModel):
