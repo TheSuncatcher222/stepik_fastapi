@@ -11,6 +11,7 @@
 @index = http://127.0.0.1:8000/
 @cookie = http://127.0.0.1:8000/cookie/
 @download =  http://127.0.0.1:8000/download/
+@header_read = http://127.0.0.1:8000/header-read/
 @products = http://127.0.0.1:8000/products/
 @users = http://127.0.0.1:8000/users/
 
@@ -25,6 +26,13 @@ POST {{cookie}}read/ HTTP/1.1
 
 ###
 POST {{cookie}}set/ HTTP/1.1
+
+###
+GET {{header_read}} HTTP/1.1
+Accept-Language: en-US,en;q=0.8
+Accept-Language: ru-RU
+Authorization: fake.token.777
+User-Agent: custom_vscode-restclient
 
 ###
 GET {{products}} HTTP/1.1

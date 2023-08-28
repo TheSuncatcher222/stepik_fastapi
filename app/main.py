@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Annotated
 
-from fastapi import FastAPI, Response, status, Cookie
+from fastapi import FastAPI, Response, status, Cookie, Header
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 from auth.auth import (
@@ -46,6 +47,26 @@ async def download_requirements():
         filename='Project_Requirements.txt',
         status_code=status.HTTP_200_OK,
         media_type='text/txt')
+
+
+@app.get('/header-read/')
+async def header_read(
+        accept_language: Annotated[list[str] | None, Header()] = None,
+        authorization: Annotated[str | None, Header()] = None,
+        user_agent: Annotated[list[str] | None, Header()] = None):
+    required_headers: dict[str, str | list[str]] = {
+        'Accept-Language': accept_language,
+        'Authorization': authorization,
+        'User-Agent': user_agent}
+    missing_headers: list[str] = [
+        header for header, value in required_headers.items() if value is None]
+    if missing_headers:
+        return JSONResponse(
+            content={'Missed Headers': missing_headers},
+            status_code=status.HTTP_400_BAD_REQUEST)
+    return JSONResponse(
+        content=required_headers,
+        status_code=status.HTTP_200_OK)
 
 
 @app.get('/products/', response_model=list[ProductModel])
