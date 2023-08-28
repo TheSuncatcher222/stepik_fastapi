@@ -49,6 +49,9 @@ Content-Type: application/json
 }
 
 ###
+GET {{users}}me/ HTTP/1.1
+
+###
 GET {{users}} HTTP/1.1
 
 ###
