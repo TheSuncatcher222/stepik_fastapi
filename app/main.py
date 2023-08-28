@@ -3,7 +3,9 @@ from datetime import datetime
 from fastapi import FastAPI, Response, status, Cookie
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
-from auth.auth import hash_password
+from auth.auth import (
+    decode, password_hash, user_token_generate,
+    SECRET_TOKEN_ENCODE)
 from core.core import PRODUCTS, USERS, USERS_USERNAMES
 from db_fake import DB_FAKE_INIT
 from models.models import (
@@ -97,7 +99,7 @@ async def users_post(user: UserRegisterModel):
     if user.username in db[USERS_USERNAMES]:
         return JSONResponse(
             content={"Bad Request": "User with that username exists!"},
-            status_code=status.HTTP_400_BAD_REQUEST) 
+            status_code=status.HTTP_400_BAD_REQUEST)
     new_id: int = len(db[USERS]) + 1
     posted_user = UserModel(
         id=new_id,
@@ -109,11 +111,29 @@ async def users_post(user: UserRegisterModel):
     return posted_user
 
 
-@app.get('/users/{id}/', response_model=UserWithoutPasswordModel | dict)
-async def users_get_id(id: int):
-    return db[USERS].get(id, JSONResponse(
-        content={"Bad Request": "User doesn't exist!"},
-        status_code=status.HTTP_404_NOT_FOUND))
+@app.get('/users/me/', response_class=JSONResponse)
+async def users_me_get(session_token=Cookie()):
+    username, token = session_token.split(".")
+    username = decode(encrypted_data=username)
+    if (token != SECRET_TOKEN_ENCODE or username not in db[USERS_USERNAMES]):
+        response: JSONResponse = JSONResponse(
+            content={"Unauthorize": "Permission denied!"},
+            status_code=status.HTTP_401_UNAUTHORIZED)
+    else:
+        for user in db[USERS].values():
+            if username == user.username:
+                response: JSONResponse = JSONResponse(
+                    content={
+                        "id": user.username,
+                        "username": user.username,
+                        # Object of type datetime is not JSON serializable,
+                        # f-string is required!
+                        "date_reg": f"{user.date_reg}",
+                        "age": user.age,
+                        "age_grade": user.age_grade,
+                        "is_subscribed": user.is_subscribed},
+                    status_code=status.HTTP_200_OK)
+    return response
 
 
 @app.post('/users/login/', response_model=dict[str, str])
@@ -124,7 +144,7 @@ async def users_login(login_data: UsersAuthModel, response=JSONResponse):
             current_user: UserModel = user
             break
     if (current_user is None or
-            current_user.password != hash_password(
+            current_user.password != password_hash(
                 password=login_data.password)):
         return JSONResponse(
             content={"Bad Request": "Incorrect username or password!"},
@@ -132,8 +152,17 @@ async def users_login(login_data: UsersAuthModel, response=JSONResponse):
     response = JSONResponse(
             content={"Confirm": "Welcome!"},
             status_code=status.HTTP_200_OK)
-    response.set_cookie(key='session_token')
+    response.set_cookie(
+        key='session_token',
+        value=user_token_generate(username=current_user.username))
     return response
+
+
+@app.get('/users/{id}/', response_model=UserWithoutPasswordModel | dict)
+async def users_get_id(id: int):
+    return db[USERS].get(id, JSONResponse(
+        content={"Bad Request": "User doesn't exist!"},
+        status_code=status.HTTP_404_NOT_FOUND))
 
 
 if __name__ == '__main__':
