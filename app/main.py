@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import FastAPI, Response, status, Cookie, Header
+from fastapi import (
+    FastAPI, HTTPException, Response, status, Request,
+    Cookie, Header)
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 
 from auth.auth import (
@@ -74,13 +76,13 @@ async def products_get(limit: int = 3, offset: int = 0):
     return list(db[PRODUCTS].values())[offset:limit+offset]
 
 
-@app.get('/products/search/', response_model=list[ProductModel] | dict)
+@app.get('/products/search/', response_model=list[ProductModel])
 async def products_get_search(
         keyword: str,
         category: str = None,
         limit: int = 10):
     if category and category not in PRODUCT_CATEGORIES_LIST:
-        return {"BadRequest": "Category doesn't exist!"}
+        raise HTTPException(status_code=401, detail="Category doesn't exist!")
     response: list[ProductModel] = list(
         filter(lambda product: keyword.lower() in product.name.lower(),
                db[PRODUCTS].values()))
@@ -93,9 +95,10 @@ async def products_get_search(
 
 @app.get('/products/{id}/', response_model=ProductModel | dict)
 async def products_get_id(id: int):
-    return db[PRODUCTS].get(id, JSONResponse(
-        content={"Bad Request": "Product doesn't exist!"},
-        status_code=status.HTTP_404_NOT_FOUND))
+    product = db[PRODUCTS].get(id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Not Found!")
+    return product
 
 
 @app.post('/products/', response_model=ProductModel)
@@ -115,12 +118,11 @@ async def users_get(limit: int = 3, offset: int = 0):
     return list(db[USERS].values())[offset:limit+offset]
 
 
-@app.post('/users/', response_model=UserWithoutPasswordModel | dict)
+@app.post('/users/', response_model=UserWithoutPasswordModel)
 async def users_post(user: UserRegisterModel):
     if user.username in db[USERS_USERNAMES]:
-        return JSONResponse(
-            content={"Bad Request": "User with that username exists!"},
-            status_code=status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(
+            status_code=401, detail="User with that username exists!")
     new_id: int = len(db[USERS]) + 1
     posted_user = UserModel(
         id=new_id,
@@ -132,29 +134,14 @@ async def users_post(user: UserRegisterModel):
     return posted_user
 
 
-@app.get('/users/me/', response_class=JSONResponse)
+@app.get('/users/me/', response_model=UserWithoutPasswordModel)
 async def users_me_get(session_token=Cookie()):
     username, token = session_token.split(".")
     username = decode(encrypted_data=username)
     if (token != SECRET_TOKEN_ENCODE or username not in db[USERS_USERNAMES]):
-        response: JSONResponse = JSONResponse(
-            content={"Unauthorize": "Permission denied!"},
-            status_code=status.HTTP_401_UNAUTHORIZED)
-    else:
-        for user in db[USERS].values():
-            if username == user.username:
-                response: JSONResponse = JSONResponse(
-                    content={
-                        "id": user.username,
-                        "username": user.username,
-                        # Object of type datetime is not JSON serializable,
-                        # f-string is required!
-                        "date_reg": f"{user.date_reg}",
-                        "age": user.age,
-                        "age_grade": user.age_grade,
-                        "is_subscribed": user.is_subscribed},
-                    status_code=status.HTTP_200_OK)
-    return response
+        raise HTTPException(status_code=401, detail="Permission denied!")
+    return [user for user in db[USERS].values()
+            if username == user.username][0]
 
 
 @app.post('/users/login/', response_model=dict[str, str])
@@ -184,6 +171,13 @@ async def users_get_id(id: int):
     return db[USERS].get(id, JSONResponse(
         content={"Bad Request": "User doesn't exist!"},
         status_code=status.HTTP_404_NOT_FOUND))
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail})
 
 
 if __name__ == '__main__':
