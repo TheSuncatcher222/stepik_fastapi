@@ -147,18 +147,14 @@ async def users_me_get(session_token=Cookie()):
 
 
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
-    current_user: None = None
     for user in db[USERS].values():
-        if credentials.username == user.username:
-            current_user: UserModel = user
-            break
-    if (current_user is None or
-            current_user.password != password_hash(
-                password=credentials.password)):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials")
-    return current_user
+        if (credentials.username == user.username and
+                user.password == password_hash(
+                    password=credentials.password)):
+            return user
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid credentials")
 
 
 @app.get('/users/me_protected/', response_class=dict[str, str])
@@ -171,7 +167,7 @@ async def users_me_protected_get(user=Depends(authenticate_user)):
 
 
 @app.post('/users/login/', response_model=dict[str, str])
-async def users_login(login_data: UsersAuthModel, response=JSONResponse):
+async def users_login(login_data: UsersAuthModel):
     current_user: UsersAuthModel | None = None
     for user in db[USERS].values():
         if login_data.username == user.username:
@@ -180,9 +176,9 @@ async def users_login(login_data: UsersAuthModel, response=JSONResponse):
     if (current_user is None or
             current_user.password != password_hash(
                 password=login_data.password)):
-        return JSONResponse(
-            content={"Bad Request": "Incorrect username or password!"},
-            status_code=status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password!")
     response = JSONResponse(
             content={"Confirm": "Welcome!"},
             status_code=status.HTTP_200_OK)
