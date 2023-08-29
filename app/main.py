@@ -3,8 +3,9 @@ from typing import Annotated
 
 from fastapi import (
     FastAPI, HTTPException, Response, status, Request,
-    Cookie, Header)
+    Cookie, Depends, Header)
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from auth.auth import (
     decode, password_hash, user_token_generate,
@@ -17,6 +18,7 @@ from models.models import (
     UserWithoutPasswordModel)
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
+security: HTTPBasic = HTTPBasic()
 
 db: dict[str, dict[int, any]] = DB_FAKE_INIT
 
@@ -142,6 +144,30 @@ async def users_me_get(session_token=Cookie()):
         raise HTTPException(status_code=401, detail="Permission denied!")
     return [user for user in db[USERS].values()
             if username == user.username][0]
+
+
+def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
+    current_user: None = None
+    for user in db[USERS].values():
+        if credentials.username == user.username:
+            current_user: UserModel = user
+            break
+    if (current_user is None or
+            current_user.password != password_hash(
+                password=credentials.password)):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials")
+    return current_user
+
+
+@app.get('/users/me_protected/', response_class=dict[str, str])
+async def users_me_protected_get(user=Depends(authenticate_user)):
+    return JSONResponse(
+        content={
+            "message": ("You have access to the protected resource, "
+                        f"{user.username}!")},
+        status_code=status.HTTP_200_OK)
 
 
 @app.post('/users/login/', response_model=dict[str, str])
