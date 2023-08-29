@@ -60,6 +60,11 @@ Content-Type: application/json
 GET {{users}}me/ HTTP/1.1
 
 ###
+GET {{users}}me_protected/ HTTP/1.1
+Authorization: Basic SXZhbmE6bXlwYXNz
+
+
+###
 GET {{users}} HTTP/1.1
 
 ###
