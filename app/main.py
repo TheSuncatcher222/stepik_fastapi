@@ -146,19 +146,28 @@ async def users_me_get(session_token=Cookie()):
             if username == user.username][0]
 
 
-def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
+def authenticate_user(auth_data: HTTPBasicCredentials | UsersAuthModel):
     for user in db[USERS].values():
-        if (credentials.username == user.username and
+        if (auth_data.username == user.username and
                 user.password == password_hash(
-                    password=credentials.password)):
+                    password=auth_data.password)):
             return user
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid credentials")
 
 
+def authenticate_credentials(
+        credentials: HTTPBasicCredentials = Depends(security)):
+    return authenticate_user(auth_data=credentials)
+
+
+def authenticate_body(login_data: UsersAuthModel):
+    return authenticate_user(auth_data=login_data)
+
+
 @app.get('/users/me_protected/', response_class=dict[str, str])
-async def users_me_protected_get(user=Depends(authenticate_user)):
+async def users_me_protected_get(user=Depends(authenticate_credentials)):
     return JSONResponse(
         content={
             "message": ("You have access to the protected resource, "
@@ -167,24 +176,13 @@ async def users_me_protected_get(user=Depends(authenticate_user)):
 
 
 @app.post('/users/login/', response_model=dict[str, str])
-async def users_login(login_data: UsersAuthModel):
-    current_user: UsersAuthModel | None = None
-    for user in db[USERS].values():
-        if login_data.username == user.username:
-            current_user: UserModel = user
-            break
-    if (current_user is None or
-            current_user.password != password_hash(
-                password=login_data.password)):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password!")
+async def users_login(user=Depends(authenticate_body)):
     response = JSONResponse(
             content={"Confirm": "Welcome!"},
             status_code=status.HTTP_200_OK)
     response.set_cookie(
         key='session_token',
-        value=user_token_generate(username=current_user.username))
+        value=user_token_generate(username=user.username))
     return response
 
 
