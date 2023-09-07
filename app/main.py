@@ -81,23 +81,20 @@ async def users_post(user: UserRegisterModel):
 @app.get('/users/me/', response_model=UserWithoutPasswordModel)
 async def users_me_get(authorization: Annotated[str | None, Header()] = None):
     """Get JWT and return user data if valid."""
+    credentials_exception: HTTPException = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid credentials")
     if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials")
+        raise credentials_exception
     data: dict = jwt_token_read(data=authorization)
     id, expired = data.get('id'), data.get('expired')
     if (expired is None or
             datetime.strptime(expired, STRTIME_FORMAT) < datetime.utcnow() or
             id is None):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid credentials!")
+        raise credentials_exception
     user: dict = db[USERS].get(id)
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid credentials!")
+        raise credentials_exception
     return user
 
 
