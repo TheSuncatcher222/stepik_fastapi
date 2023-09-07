@@ -80,7 +80,7 @@ async def users_post(user: UserRegisterModel):
 
 # TODO: read https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/
 @app.get('/users/me/', response_model=UserWithoutPasswordModel)
-async def users_me_get(authorization: Annotated[str | None, Header()] = None):
+async def users_me_get(authorization: str = Depends(oauth2_scheme)):
     """Get JWT and return user data if valid."""
     credentials_exception: HTTPException = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
