@@ -58,11 +58,7 @@ Content-Type: application/json
 
 ###
 GET {{users}}me/ HTTP/1.1
-
-###
-GET {{users}}me_protected/ HTTP/1.1
-Authorization: Basic SXZhbmE6bXlwYXNz
-
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wNyAxMzo0NDo1NSIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyfQ.1JEiaEZTrdMFophAZLfh5TPRjVYR2K3BUbO0K-ZW7Dw
 
 ###
 GET {{users}} HTTP/1.1

@@ -1,17 +1,12 @@
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 import hashlib
 
+from fastapi import HTTPException, status
+import jwt
+
+
 from core.secrets import (
-    HASH_NAME, PASS_ENCODE, SALT, ITERATIONS,
-    SECRET_KEY, SECRET_TOKEN)
-
-
-def password_hash(password: str) -> str:
-    return hashlib.pbkdf2_hmac(
-        hash_name=HASH_NAME,
-        password=password.encode(PASS_ENCODE),
-        salt=SALT,
-        iterations=ITERATIONS)
+    HASH_NAME, JWT_ALGORITHM, PASS_ENCODE, SALT, ITERATIONS, SECRET_KEY)
 
 
 def encode(data: str) -> str:
@@ -27,9 +22,28 @@ def decode(encrypted_data: str) -> str:
     return decrypted_data
 
 
-SECRET_TOKEN_ENCODE: bytes = encode(data=SECRET_TOKEN)
+def jwt_token_create(data: dict):
+    """Encode dict data to jwt token."""
+    return jwt.encode(payload=data, key=SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
-def user_token_generate(username: str) -> str:
-    encode_username: bytes = encode(data=username)
-    return f'{encode_username}.{SECRET_TOKEN_ENCODE}'
+def jwt_token_read(data: dict):
+    """Decode dict data from jwt token."""
+    try:
+        return jwt.decode(jwt=data, key=SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        detail = "Token has expired!"
+    except jwt.InvalidTokenError:
+        detail = "Token is broken!"
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail)
+
+
+def password_hash(password: str) -> str:
+    """Hash user password to write in db."""
+    return hashlib.pbkdf2_hmac(
+        hash_name=HASH_NAME,
+        password=password.encode(PASS_ENCODE),
+        salt=SALT,
+        iterations=ITERATIONS)
