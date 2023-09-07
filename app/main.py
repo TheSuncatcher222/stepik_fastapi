@@ -78,6 +78,7 @@ async def users_post(user: UserRegisterModel):
     return posted_user
 
 
+# TODO: read https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/
 @app.get('/users/me/', response_model=UserWithoutPasswordModel)
 async def users_me_get(authorization: Annotated[str | None, Header()] = None):
     """Get JWT and return user data if valid."""
