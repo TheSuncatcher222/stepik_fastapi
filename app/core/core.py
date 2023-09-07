@@ -1,3 +1,7 @@
+"""
+Contain project core data.
+"""
+
 ADULT_AGE: int = 18
 ADULT: str = 'adult'
 MINOR: str = 'minor'

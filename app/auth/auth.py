@@ -1,3 +1,7 @@
+"""
+Contain functions to hash data or generate JWT token.
+"""
+
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 import hashlib
 

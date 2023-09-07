@@ -1,3 +1,7 @@
+"""
+Load secrets from .env file
+"""
+
 """Auth hash parameters"""
 HASH_NAME = 'sha256'
 PASS_ENCODE = 'utf-8'

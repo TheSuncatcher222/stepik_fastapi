@@ -1,3 +1,20 @@
+"""
+=================
+My first FastAPI project! Study new framework.
+=================
+Project tech data:
+    - custom JWT authentication
+    - to be more...
+=================
+Author: Svidunovich Kirill
+        TheSuncatcher222@gmail.com
+        https://github.com/TheSuncatcher222
+=================
+Project description and instructions:
+https://github.com/TheSuncatcher222/stepik_fastapi
+=================
+"""
+
 from datetime import datetime, timedelta
 from typing import Annotated
 
