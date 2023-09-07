@@ -30,7 +30,15 @@ class ProductCategories(str, Enum):
     electronics = 'electronics'
 
 
+class UserRoles(str, Enum):
+    is_anonymous = 'is_anonymous'
+    is_authenticated = 'is_authenticated'
+    is_admin = 'is_admin'
+    is_superuser = 'is_superuser'
+
+
 PRODUCT_CATEGORIES_LIST: list[str] = [c.value for c in ProductCategories]
+USER_ROLES_LIST: list[str] = [c.value for c in UserRoles]
 
 
 class ProductModel(BaseModel):
@@ -89,11 +97,13 @@ class UserModel(UserRegisterModel):
         - date_reg: datetime - user date of registration
         - is_subscribed: bool - user is_subscription state (default is False)
         - age_grade: str - set user age grade according set_age_grade logic
+        - role: str - role at the server, validated by UserRoles
     """
     id: int = None
     date_reg: datetime = datetime.utcnow()
     is_subscribed: bool = False
     age_grade: str = None
+    role: UserRoles = UserRoles.is_authenticated
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

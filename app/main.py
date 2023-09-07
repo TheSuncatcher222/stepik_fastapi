@@ -16,11 +16,8 @@ https://github.com/TheSuncatcher222/stepik_fastapi
 """
 
 from datetime import datetime, timedelta
-from typing import Annotated
 
-from fastapi import (
-    FastAPI, HTTPException, status, Request,
-    Depends, Header)
+from fastapi import FastAPI, HTTPException, status, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 
@@ -29,7 +26,8 @@ from core.core import STRTIME_FORMAT, USERS, USERS_USERNAMES
 from core.secrets import JWT_EXPIRATION_SEC
 from db_fake import DB_FAKE_INIT
 from models.models import (
-    UsersAuthModel, UserModel, UserRegisterModel, UserWithoutPasswordModel)
+    UsersAuthModel, UserModel, UserRegisterModel, UserRoles,
+    UserWithoutPasswordModel)
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
 oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl='token')
@@ -53,6 +51,20 @@ def authenticate_body(login_data: UsersAuthModel):
     """Get username and password data from the body of the request
     and send to authenticate_user."""
     return authenticate_user(auth_data=login_data)
+
+
+def get_user_from_jwt(jwt: str) -> dict | None:
+    """Read JWT token and return user if valid."""
+    data: dict = jwt_token_read(data=jwt)
+    id, expired = data.get('id'), data.get('expired')
+    if (expired is None or
+            datetime.strptime(expired, STRTIME_FORMAT) < datetime.utcnow() or
+            id is None):
+        return None
+    user: dict = db[USERS].get(id)
+    if user is None:
+        raise None
+    return user
 
 
 @app.get('/users/', response_model=list[UserWithoutPasswordModel])
@@ -87,13 +99,7 @@ async def users_me_get(authorization: str = Depends(oauth2_scheme)):
         detail="Invalid credentials")
     if not authorization:
         raise credentials_exception
-    data: dict = jwt_token_read(data=authorization)
-    id, expired = data.get('id'), data.get('expired')
-    if (expired is None or
-            datetime.strptime(expired, STRTIME_FORMAT) < datetime.utcnow() or
-            id is None):
-        raise credentials_exception
-    user: dict = db[USERS].get(id)
+    user: dict = get_user_from_jwt(jwt=authorization)
     if user is None:
         raise credentials_exception
     return user
@@ -111,9 +117,22 @@ async def users_login(user=Depends(authenticate_body)):
             "username": user.username,
             "age": user.age})
     response = JSONResponse(
-            content={"jwt_token": jwt_token},
+            content={"jwt_token": f'Bearer {jwt_token}'},
             status_code=status.HTTP_200_OK)
     return response
+
+
+@app.post('/users/get_my_role/')
+async def users_get_my_role(authorization: str = Depends(oauth2_scheme)):
+    """Get JWT and return user role."""
+    user: dict = get_user_from_jwt(jwt=authorization)
+    if user is None:
+        role: str = UserRoles.is_anonymous
+    else:
+        role: str = user.role
+    return JSONResponse(
+        content={"Current role": role},
+        status_code=status.HTTP_200_OK)
 
 
 @app.get('/users/{id}/', response_model=UserWithoutPasswordModel)

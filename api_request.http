@@ -58,7 +58,11 @@ Content-Type: application/json
 
 ###
 GET {{users}}me/ HTTP/1.1
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wNyAxMzo0NDo1NSIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyfQ.1JEiaEZTrdMFophAZLfh5TPRjVYR2K3BUbO0K-ZW7Dw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wNyAxNjowNzozNSIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyfQ.g0KDKGn6x84YNX4xEPESxBUVnOjyeXwDehahDEu5KEw
+
+###
+POST {{users}}get_my_role/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wNyAxNjoxMzo0OCIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyLCJyb2xlIjoiaXNfYXV0aGVudGljYXRlZCJ9.gn3V8fDYcH-6gdj0mGaBFxWCx-Sn9Ygy76cig_Lbwi0
 
 ###
 GET {{users}} HTTP/1.1
