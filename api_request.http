@@ -58,11 +58,11 @@ Content-Type: application/json
 
 ###
 GET {{users}}me/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wNyAxNjowNzozNSIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyfQ.g0KDKGn6x84YNX4xEPESxBUVnOjyeXwDehahDEu5KEw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wOSAwNzoyOToxOSIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyfQ.nYyjJWbxnaeoLl44TkRQzS37ufAeUStnCkCCY0ug2Rw
 
 ###
 POST {{users}}get_my_role/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wNyAxNjoxMzo0OCIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyLCJyb2xlIjoiaXNfYXV0aGVudGljYXRlZCJ9.gn3V8fDYcH-6gdj0mGaBFxWCx-Sn9Ygy76cig_Lbwi0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmVkIjoiMjAyMy0wOS0wOSAwNzoyOTowMyIsImlkIjoxLCJ1c2VybmFtZSI6Ikl2YW5hIiwiYWdlIjoyfQ.XZBwmbNlFjcMVVkiYuojBNpttxwdQhbsV4jhBdFCIJs
 
 ###
 GET {{users}} HTTP/1.1
@@ -84,7 +84,7 @@ Content-Type: application/json
 }
 
 ###
-POST {{users}}login/ HTTP/1.1
+POST {{index}}login/ HTTP/1.1
 Content-Type: application/json
 
 {
