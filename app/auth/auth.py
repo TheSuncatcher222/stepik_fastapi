@@ -6,6 +6,7 @@ from base64 import urlsafe_b64encode, urlsafe_b64decode
 import hashlib
 
 from fastapi import HTTPException, status
+# TODO: изучить python-jose вместо PyJWT
 import jwt
 
 
@@ -41,7 +42,8 @@ def jwt_token_read(data: dict):
         detail = "Token is broken!"
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=detail)
+        detail=detail,
+        headers={"WWW-Authenticate": "Bearer"})
 
 
 def password_hash(password: str) -> str:

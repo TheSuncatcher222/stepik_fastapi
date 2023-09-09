@@ -30,7 +30,8 @@ from models.models import (
     UserWithoutPasswordModel)
 
 app: FastAPI = FastAPI(title='My first FastAPI app')
-oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl='token')
+# TODO: разобраться с tokenUrl
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl='login')
 
 db: dict[str, dict[int, any]] = DB_FAKE_INIT
 
@@ -105,7 +106,7 @@ async def users_me_get(authorization: str = Depends(oauth2_scheme)):
     return user
 
 
-@app.post('/users/login/')
+@app.post('/login/')
 async def users_login(user=Depends(authenticate_body)):
     """Authenticate user and set user token to the cookies."""
     exp = (datetime.utcnow() + timedelta(seconds=JWT_EXPIRATION_SEC)
@@ -150,7 +151,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     """Catch HTTPExceptions from app and return it to the client."""
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail})
+        content={"detail": exc.detail},
+        headers=exc.headers)
 
 
 if __name__ == '__main__':
