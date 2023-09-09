@@ -22,7 +22,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 
 from auth.auth import password_hash, jwt_token_create, jwt_token_read
-from core.core import STRTIME_FORMAT, USERS, USERS_USERNAMES
+from core.core import HTTPEXCEPTION_401, STRTIME_FORMAT, USERS, USERS_USERNAMES
 from core.secrets import JWT_EXPIRATION_SEC
 from db_fake import DB_FAKE_INIT
 from models.models import (
@@ -43,9 +43,7 @@ def authenticate_user(auth_data: UsersAuthModel):
                 user.password == password_hash(
                     password=auth_data.password)):
             return user
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid credentials")
+    raise HTTPEXCEPTION_401
 
 
 def authenticate_body(login_data: UsersAuthModel):
@@ -56,16 +54,13 @@ def authenticate_body(login_data: UsersAuthModel):
 
 def get_user_from_jwt(jwt: str) -> dict | None:
     """Read JWT token and return user if valid."""
-    data: dict = jwt_token_read(data=jwt)
-    id, expired = data.get('id'), data.get('expired')
+    jwt_token: dict = jwt_token_read(data=jwt)
+    id, expired = jwt_token.get('id'), jwt_token.get('expired')
     if (expired is None or
             datetime.strptime(expired, STRTIME_FORMAT) < datetime.utcnow() or
             id is None):
         return None
-    user: dict = db[USERS].get(id)
-    if user is None:
-        raise None
-    return user
+    return db[USERS].get(id)
 
 
 @app.get('/users/', response_model=list[UserWithoutPasswordModel])
@@ -79,7 +74,8 @@ async def users_post(user: UserRegisterModel):
     """Register new user."""
     if user.username in db[USERS_USERNAMES]:
         raise HTTPException(
-            status_code=401, detail="User with that username exists!")
+            status_code=400,
+            detail="User with that username exists!")
     new_id: int = len(db[USERS]) + 1
     posted_user: UserModel = UserModel(
         id=new_id,
@@ -95,14 +91,11 @@ async def users_post(user: UserRegisterModel):
 @app.get('/users/me/', response_model=UserWithoutPasswordModel)
 async def users_me_get(authorization: str = Depends(oauth2_scheme)):
     """Get JWT and return user data if valid."""
-    credentials_exception: HTTPException = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid credentials")
     if not authorization:
-        raise credentials_exception
+        raise HTTPEXCEPTION_401
     user: dict = get_user_from_jwt(jwt=authorization)
     if user is None:
-        raise credentials_exception
+        raise HTTPEXCEPTION_401
     return user
 
 
@@ -141,7 +134,7 @@ async def users_get_id(id: int):
     user: dict = db[USERS].get(id)
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="User doesn't exist!")
     return user
 
