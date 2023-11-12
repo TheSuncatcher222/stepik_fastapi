@@ -48,8 +48,8 @@ def jwt_token_read(data: dict):
 
 def password_hash(password: str) -> str:
     """Hash user password to write in db."""
-    return hashlib.pbkdf2_hmac(
+    return str(hashlib.pbkdf2_hmac(
         hash_name=HASH_NAME,
         password=password.encode(PASS_ENCODE),
         salt=SALT,
-        iterations=ITERATIONS)
+        iterations=ITERATIONS))

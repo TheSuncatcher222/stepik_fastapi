@@ -24,8 +24,8 @@ from fastapi.security import OAuth2PasswordBearer
 from auth.auth import password_hash, jwt_token_create, jwt_token_read
 from core.core import HTTPEXCEPTION_401, STRTIME_FORMAT, USERS, USERS_USERNAMES
 from core.secrets import JWT_EXPIRATION_SEC
-from db_fake import DB_FAKE_INIT
-from models.models import (
+#from db_fake import DB_FAKE_INIT
+from models.models_sqlalchemy import (
     UsersAuthModel, UserModel, UserRegisterModel, UserRoles,
     UserWithoutPasswordModel)
 
