@@ -1,0 +1,140 @@
+Пользователь (User):
+____________________________
+user_id (Primary Key)
+username
+password_hash (хешированный пароль)
+email
+user_type (обычный пользователь или администратор)
+
+
+Товар (Product):
+____________________________
+product_id (Primary Key)
+name
+description
+price
+quantity_available
+seller_id (Foreign Key, связь с таблицей пользователей)
+
+
+Категория товара (Category):
+____________________________
+category_id (Primary Key)
+name
+
+
+Подкатегория товара (Subcategory):
+____________________________
+subcategory_id (Primary Key)
+name
+category_id (Foreign Key, связь с таблицей категорий)
+
+
+Адрес пользователя (Address):
+____________________________
+address_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+street
+city
+state
+zip_code
+country
+
+
+Платежная информация пользователя (PaymentInfo):
+____________________________
+payment_info_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+card_number
+expiration_date
+cvv
+
+Отзывы и Рейтинги (Review):
+____________________________
+review_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+product_id (Foreign Key, связь с таблицей товаров)
+rating (целочисленное значение, например, от 1 до 5)
+comment (текстовое поле для комментария пользователя)
+
+
+Заказы (Order):
+____________________________
+order_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+order_date (дата размещения заказа)
+status (статус заказа, например, "в обработке", "в пути", "доставлен")
+total_amount (общая сумма заказа)
+
+
+Корзина (Cart):
+____________________________
+cart_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+product_id (Foreign Key, связь с таблицей товаров)
+quantity (количество товара в корзине)
+
+
+Скидки и Промокоды (Discount):
+____________________________
+discount_id (Primary Key)
+code (уникальный код скидки)
+discount_percentage (процент скидки)
+
+
+Статистика (Statistics):
+____________________________
+statistics_id (Primary Key)
+user_count (количество пользователей)
+product_sold_count (количество проданных товаров)
+popular_category (популярная категория)
+
+
+Уведомления (Notification):
+____________________________
+notification_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+message (текст уведомления)
+status (статус уведомления, например, "прочитано", "не прочитано")
+
+
+Логирование активности (ActivityLog):
+____________________________
+log_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+activity_type (тип активности, например, "вход", "изменение данных")
+timestamp (временная метка активности)
+
+
+Комментарии к товарам (ProductComment):
+____________________________
+comment_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+product_id (Foreign Key, связь с таблицей товаров)
+comment (текстовое поле для комментария пользователя)
+
+
+История транзакций (TransactionHistory):
+____________________________
+transaction_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+amount (сумма транзакции)
+description (описание транзакции)
+timestamp (временная метка транзакции)
+
+
+Служба поддержки (SupportRequest):
+____________________________
+request_id (Primary Key)
+user_id (Foreign Key, связь с таблицей пользователей)
+subject (тема обращения)
+description (описание проблемы)
+status (статус запроса, например, "в обработке", "решено")
+
+
+Функциональности для администраторов (AdminFunctionality):
+____________________________
+admin_functionality_id (Primary Key)
+admin_id (Foreign Key, связь с таблицей администраторов)
+description (описание функциональности)
+timestamp (временная метка активности)
